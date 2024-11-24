@@ -1,11 +1,40 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Platform, Button, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import React, { useEffect, useState } from 'react';
 
-export default function HomeScreen() {
+export default function HomeScreen() {  
+    const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+
+    const pickImageAsync = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          allowsEditing: true,
+          quality: 1,
+        });
+    
+        if (!result.canceled) {
+          setImage(result.assets[0].uri);
+        } else {
+            //alert('No ha seleccionado ninguna imagen');
+        }
+    };
+
+    const takePictureAsync = async () => {
+        let result = await ImagePicker.launchCameraAsync({
+          quality: 1,
+          base64: true
+        });
+    
+        if (!result.canceled) {
+          setImage(result.assets[0].uri);
+        } else {
+          //alert('Captura de imagen cancelada');
+        }
+    };
+    
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -19,6 +48,35 @@ export default function HomeScreen() {
         <ThemedText type="title">Aplicaciones Moviles UNAJ</ThemedText>
         <HelloWave />
       </ThemedView>
+
+      <ThemedView>
+        <Button
+            title = "Cámara"
+            onPress = { takePictureAsync }
+        />
+        
+      <View style={styles.spacer} />
+
+        <Button
+            title = "Seleccionar imagen"
+            onPress = { pickImageAsync }
+        >            
+        </Button>
+
+          <Image
+            style = {{
+                alignSelf: 'stretch',
+                height: 300,
+                width: 300,
+                marginTop: 5,
+                marginBottom: 15,
+                objectFit: 'contain'
+            }}
+            source = {{uri: image}}
+        >
+        </Image>
+      </ThemedView>
+      
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
@@ -49,7 +107,7 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
-      </ThemedView>
+      </ThemedView>      
     </ParallaxScrollView>
   );
 }
@@ -71,4 +129,9 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  spacer: {
+      margin: 3,
+      top: 0,
+  }
 });
+
