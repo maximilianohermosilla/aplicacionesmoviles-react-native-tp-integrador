@@ -1,46 +1,82 @@
-import { Image, StyleSheet, Platform, Button, View } from 'react-native';
+import { Image, StyleSheet, Button, View, TextInput } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
 
-export default function HomeScreen() {  
-    const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+export default function HomeScreen() {
+  const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ email: '', password: '' });
 
-    const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-          allowsEditing: true,
-          quality: 1,
-        });
-    
-        if (!result.canceled) {
-          setImage(result.assets[0].uri);
-        } else {
-            //alert('No ha seleccionado ninguna imagen');
-        }
-    };
+  // Validar el email
+  const validateEmail = (email: any) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    const takePictureAsync = async () => {
-        let result = await ImagePicker.launchCameraAsync({
-          quality: 1,
-          base64: true
-        });
-    
-        if (!result.canceled) {
-          setImage(result.assets[0].uri);
-        } else {
-          //alert('Captura de imagen cancelada');
-        }
-    };
-    
+  const handleLogin = () => {
+    let isValid = true;
+    const newErrors = { email: '', password: '' };
+
+    // Validación del campo email
+    if (!email.trim()) {
+      newErrors.email = 'El email es requerido.';
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'El formato del email no es válido.';
+      isValid = false;
+    }
+
+    // Validación del campo password
+    if (!password.trim()) {
+      newErrors.password = 'La contraseña es requerida.';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (isValid) {
+      // Lógica de inicio de sesión aquí
+      alert(`Inicio de sesión exitoso. Email: ${email}`);
+    }
+  };
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    } else {
+      //alert('No ha seleccionado ninguna imagen');
+    }
+  };
+
+  const takePictureAsync = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      quality: 1,
+      base64: true
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    } else {
+      //alert('Captura de imagen cancelada');
+    }
+  };
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#0082c0', dark: '#0082c0' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/unaj-logo.png')}
           style={styles.reactLogo}
         />
       }>
@@ -49,73 +85,112 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
 
-      <ThemedView>
-        <Button
-            title = "Cámara"
-            onPress = { takePictureAsync }
+      <View style={styles.container}>
+        <ThemedText style={styles.title}>Registrarse</ThemedText>
+
+        {/* Campo Email */}
+        <TextInput
+          style={[styles.input, errors.email && styles.errorInput]}
+          placeholder="Correo Electrónico"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
-        
-      <View style={styles.spacer} />
+        {errors.email ? <ThemedText style={styles.errorText}>{errors.email}</ThemedText> : null}
 
-        <Button
-            title = "Seleccionar imagen"
-            onPress = { pickImageAsync }
-        >            
-        </Button>
+        {/* Campo Password */}
+        <TextInput
+          style={[styles.input, errors.password && styles.errorInput]}
+          placeholder="Contraseña"
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+        />
+        {errors.password ? <ThemedText style={styles.errorText}>{errors.password}</ThemedText> : null}
 
+        <ThemedView>
           <Image
-            style = {{
-                alignSelf: 'stretch',
-                height: 300,
-                width: 300,
-                marginTop: 5,
-                marginBottom: 15,
-                objectFit: 'contain'
+            style={{
+              alignSelf: 'center',
+              height: 200,
+              width: 200,
+              marginTop: 5,
+              marginBottom: 5,
+              objectFit: 'contain'
             }}
-            source = {{uri: image}}
-        >
-        </Image>
-      </ThemedView>
-      
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>      
+            source={{ uri: image }}
+          >
+          </Image>
+
+          <View style={styles.containerFluid}>
+            <FontAwesome.Button name="camera" backgroundColor={"#0082c0"} onPress={pickImageAsync}>
+              Cámara
+            </FontAwesome.Button>
+            <View style={styles.spacer} />
+            <FontAwesome.Button name="image" backgroundColor={"#0082c0"} onPress={takePictureAsync}>
+              Galería
+            </FontAwesome.Button>
+          </View>
+        </ThemedView>
+
+        <View  style={{marginBottom: 20}} />
+
+        {/* Botón de Inicio de Sesión */}
+        <Button title="Aceptar" onPress={handleLogin} />
+      </View>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  containerFluid: {
+    width: "100%",
     flexDirection: 'row',
+    justifyContent: "center",
     alignItems: 'center',
+    gap: 4,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+  },
+  errorInput: {
+    borderColor: '#ff6b6b',
+  },
+  errorText: {
+    alignSelf: 'flex-start',
+    color: '#ff6b6b',
+    marginBottom: 10,
+  },
+  textInput: {
+    padding: 16,
+    borderColor: 'black',
+    borderWidth: 1,
+  },
+  titleContainer: {
+    width: "100%",
+    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: 'center',
+    textAlign: "center",
+    marginBottom: 10,
     gap: 8,
   },
   stepContainer: {
@@ -123,15 +198,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reactLogo: {
-    height: 178,
+    height: 200,
     width: 290,
     bottom: 0,
     left: 0,
     position: 'absolute',
+    objectFit: "contain"
   },
   spacer: {
-      margin: 3,
-      top: 0,
+    margin: 3,
+    top: 0,
   }
 });
 
