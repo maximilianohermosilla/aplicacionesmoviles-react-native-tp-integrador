@@ -41,10 +41,11 @@ export default function TabTwoScreen() {
 
   async function fetchStorage() {
     let _email = await getValueFor("email")
+    let _password = await getValueFor("password")
+    let _image = await getValueFor("image") || 'https://via.placeholder.com/300'
     setEmail(_email)
-    setPassword(await getValueFor("password"))
-    setImage(await getValueFor("image"))
-    console.log(email)
+    setPassword(_password)
+    setImage(_image)
   }
 
   const logOut = () => {

@@ -4,7 +4,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from 'expo-router';
@@ -31,6 +31,10 @@ export default function HomeScreen() {
   const route = useRoute();
   const refresh = route.params || undefined
   
+  useEffect(() => {  
+    
+  }, [refresh])
+
   // Validar el email
   const validateEmail = (email: any) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
