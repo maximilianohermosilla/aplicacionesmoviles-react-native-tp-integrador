@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import { StyleSheet, Image, Platform, View, Button } from 'react-native';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -6,8 +6,58 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import * as SecureStore from 'expo-secure-store';
+import { useEffect, useState } from 'react';
+import {
+  createStaticNavigation,
+  ParamListBase,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+async function getValueFor(key: string) {
+  let result = await SecureStore.getItemAsync(key);
+  if (result) {
+    return result;
+  } else {
+    return undefined;
+  }
+}
 
 export default function TabTwoScreen() {
+  const [email, setEmail] = useState<string | undefined>('');
+  const [password, setPassword] = useState<string | undefined>('');
+  const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>()
+  const route = useRoute();
+  const refresh = route.params || undefined
+  
+  useEffect(() => {
+    console.log("useEffect")
+    fetchStorage();
+  }, [refresh])
+
+  async function fetchStorage() {
+    let _email = await getValueFor("email")
+    setEmail(_email)
+    setPassword(await getValueFor("password"))
+    setImage(await getValueFor("image"))
+    console.log(email)
+  }
+
+  const logOut = () => {
+    SecureStore.deleteItemAsync("email")
+    SecureStore.deleteItemAsync("password")
+    SecureStore.deleteItemAsync("image")
+
+    fetchStorage()
+    navigation.navigate("index", {refresh: Date.now()})
+  }
+  
+  fetchStorage()
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -20,10 +70,39 @@ export default function TabTwoScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
+        <ThemedText type="title">Usuario</ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
+
+      <ThemedView style={styles.container}>
+        <Image
+          style={{
+            alignSelf: 'center',
+            height: 200,
+            width: 200,
+            marginTop: 5,
+            marginBottom: 5,
+            objectFit: 'contain'
+          }}
+          source={{ uri: image }}
+        >
+        </Image>
+        <ThemedView style={styles.container}>
+          <ThemedText type="defaultSemiBold">Email:</ThemedText>
+          <ThemedText style={{}}>{email}</ThemedText>
+        </ThemedView>
+
+        <View  style={{marginBottom: 10}}/>
+
+        <ThemedView style={styles.container}>
+          <ThemedText type="defaultSemiBold">Password:</ThemedText>
+          <ThemedText style={{}}>{password}</ThemedText>
+        </ThemedView>        
+      </ThemedView>
+      <View  style={{marginBottom: 20}} />
+
+        <Button title="Cerrar Sesión" onPress={logOut} />
+
+      {/* <Collapsible title="File-based routing">
         <ThemedText>
           This app has two screens:{' '}
           <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
@@ -90,12 +169,18 @@ export default function TabTwoScreen() {
             </ThemedText>
           ),
         })}
-      </Collapsible>
+      </Collapsible> */}
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    textAlign: "center",
+    paddingHorizontal: 10,
+  },
   headerImage: {
     color: '#808080',
     bottom: -90,
@@ -104,6 +189,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
+    justifyContent: "center",
     gap: 8,
   },
 });

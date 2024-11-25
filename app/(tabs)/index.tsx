@@ -6,13 +6,31 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
+import { useNavigation } from 'expo-router';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { ParamListBase, useRoute } from '@react-navigation/native';
+
+async function getValueFor(key: string) {
+  let result = await SecureStore.getItemAsync(key);
+  if (result) {
+    alert("🔐 Here's your value 🔐 \n" + result);
+  } else {
+    alert('No values stored under that key.');
+  }
+}
 
 export default function HomeScreen() {
+  const [key, onChangeKey] = useState('Your key here');
   const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
 
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>()
+  const route = useRoute();
+  const refresh = route.params || undefined
+  
   // Validar el email
   const validateEmail = (email: any) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +60,19 @@ export default function HomeScreen() {
 
     if (isValid) {
       // Lógica de inicio de sesión aquí
-      alert(`Inicio de sesión exitoso. Email: ${email}`);
+      SecureStore.setItem("email", email)
+      SecureStore.setItem("password", password)
+      SecureStore.setItem("image", image || "")
+      console.log(email)
+      console.log(password)
+
+      setTimeout(() => {
+        navigation.navigate("explore", {refresh: Date.now()})        
+      }, 1000);
+      //alert(`Inicio de sesión exitoso. Email: ${email}`);
+      // getValueFor("email")
+      // getValueFor("password")
+      // getValueFor("image")
     }
   };
   const pickImageAsync = async () => {
@@ -70,6 +100,8 @@ export default function HomeScreen() {
       //alert('Captura de imagen cancelada');
     }
   };
+
+
 
   return (
     <ParallaxScrollView
@@ -124,11 +156,11 @@ export default function HomeScreen() {
           </Image>
 
           <View style={styles.containerFluid}>
-            <FontAwesome.Button name="camera" backgroundColor={"#0082c0"} onPress={pickImageAsync}>
+            <FontAwesome.Button name="camera" backgroundColor={"#0082c0"} onPress={takePictureAsync}>
               Cámara
             </FontAwesome.Button>
             <View style={styles.spacer} />
-            <FontAwesome.Button name="image" backgroundColor={"#0082c0"} onPress={takePictureAsync}>
+            <FontAwesome.Button name="image" backgroundColor={"#0082c0"} onPress={pickImageAsync}>
               Galería
             </FontAwesome.Button>
           </View>
@@ -200,7 +232,7 @@ const styles = StyleSheet.create({
   reactLogo: {
     height: 200,
     width: 290,
-    bottom: 0,
+    bottom: 10,
     left: 0,
     position: 'absolute',
     objectFit: "contain"
