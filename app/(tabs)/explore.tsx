@@ -1,5 +1,4 @@
 import { StyleSheet, Image, Platform, View, Button } from 'react-native';
-
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -8,6 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
+import defaultPlaceholder from '@/assets/images/user-placeholder.png';
 import {
   createStaticNavigation,
   ParamListBase,
@@ -28,7 +28,8 @@ async function getValueFor(key: string) {
 export default function TabTwoScreen() {
   const [email, setEmail] = useState<string | undefined>('');
   const [password, setPassword] = useState<string | undefined>('');
-  const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+  const [image, setImage] = useState<any>(defaultPlaceholder);
+
 
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>()
   const route = useRoute();
@@ -40,12 +41,13 @@ export default function TabTwoScreen() {
   }, [refresh])
 
   async function fetchStorage() {
-    let _email = await getValueFor("email")
-    let _password = await getValueFor("password")
-    let _image = await getValueFor("image") || 'https://via.placeholder.com/300'
-    setEmail(_email)
-    setPassword(_password)
-    setImage(_image)
+    let _email = await getValueFor("email");
+    let _password = await getValueFor("password");
+    let _image = await getValueFor("image");
+  
+    setEmail(_email || '');
+    setPassword(_password || '');
+    setImage(_image ? JSON.parse(_image) : defaultPlaceholder);
   }
 
   const logOut = () => {
@@ -58,6 +60,43 @@ export default function TabTwoScreen() {
   }
   
   fetchStorage()
+
+  return (
+    <ParallaxScrollView
+    headerBackgroundColor={{ light: '#ffffff', dark: '#2c3e50' }}
+
+      headerImage={<IconSymbol
+        size={310}
+        color="#808080"
+        name="chevron.left.forwardslash.chevron.right"
+        style={styles.headerImage}
+      />}
+    >
+      
+      <View style={styles.container}>
+        <View style={styles.textContainer}>
+          <ThemedText type="title">Usuario</ThemedText>
+          <View style={styles.fieldContainer}>
+            <ThemedText type="defaultSemiBold">Email:</ThemedText>
+            <ThemedText>{email}</ThemedText>
+          </View>
+          <View style={styles.fieldContainer}>
+            <ThemedText type="defaultSemiBold">Password:</ThemedText>
+            <ThemedText>{password}</ThemedText>
+          </View>
+        </View>
+
+        <Image
+          style={styles.profileImage}
+          source={typeof image === 'string' ? { uri: image } : image}
+        />
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button title="Cerrar Sesión" onPress={logOut} />
+      </View>
+    </ParallaxScrollView>
+  );
 
   return (
     <ParallaxScrollView
@@ -177,10 +216,12 @@ export default function TabTwoScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    textAlign: "center",
-    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingLeft: 0,
+    paddingRight: 0,
+    justifyContent: 'space-between',
   },
   headerImage: {
     color: '#808080',
@@ -188,9 +229,42 @@ const styles = StyleSheet.create({
     left: -35,
     position: 'absolute',
   },
-  titleContainer: {
-    flexDirection: 'row',
-    justifyContent: "center",
-    gap: 8,
+  textContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+  },
+  fieldContainer: {
+    marginVertical: 8,
+  },
+  profileImage: {
+    height: 120,
+    width: 120,
+    backgroundColor: '#fff',
+    borderRadius: 100,
+    marginLeft: 16,
+  },
+  buttonContainer: {
+    marginVertical: 20,
+    paddingHorizontal: 16,
   },
 });
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     textAlign: "center",
+//     paddingHorizontal: 10,
+//   },
+//   headerImage: {
+//     color: '#808080',
+//     bottom: -90,
+//     left: -35,
+//     position: 'absolute',
+//   },
+//   titleContainer: {
+//     flexDirection: 'row',
+//     justifyContent: "center",
+//     gap: 8,
+//   },
+// });

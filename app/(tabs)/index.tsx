@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Button, View, TextInput } from 'react-native';
+import { Image, StyleSheet, Button, View, TextInput, Text, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -22,7 +22,8 @@ async function getValueFor(key: string) {
 
 export default function HomeScreen() {
   const [key, onChangeKey] = useState('Your key here');
-  const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
+  const [image, setImage] = useState(require('@/assets/images/user-placeholder.png'));
+  //const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
@@ -66,7 +67,7 @@ export default function HomeScreen() {
       // Lógica de inicio de sesión aquí
       SecureStore.setItem("email", email)
       SecureStore.setItem("password", password)
-      SecureStore.setItem("image", image || "")
+      SecureStore.setItem("image", JSON.stringify(image) || "")
       console.log(email)
       console.log(password)
 
@@ -85,8 +86,9 @@ export default function HomeScreen() {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      setImage({ uri: result.assets[0].uri });
+      //setImage(result.assets[0].uri);
     } else {
       //alert('No ha seleccionado ninguna imagen');
     }
@@ -98,8 +100,9 @@ export default function HomeScreen() {
       base64: true
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      setImage({ uri: result.assets[0].uri });
+      //setImage(result.assets[0].uri);
     } else {
       //alert('Captura de imagen cancelada');
     }
@@ -124,6 +127,47 @@ export default function HomeScreen() {
       <View style={styles.container}>
         <ThemedText style={styles.title}>Registrarse</ThemedText>
 
+        <ThemedView>
+          <Text style={styles.subtitle}>Foto de perfil</Text>
+          
+          <View
+            style={{
+              width: 150,
+              height: 150,
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 20, // Bordes redondeados sin ser un círculo
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+              marginBottom: 20,
+              backgroundColor: '#fff',
+              overflow: 'hidden', // Asegura que la imagen no sobresalga del contenedor
+            }}
+          >
+            <Image
+              style={{
+                width: '100%',
+                height: '100%',
+                resizeMode: 'cover',
+              }}
+              source={image} // Aquí usas la imagen que está en el estado
+            />
+          </View>
+
+          <View style={styles.containerFluid}>
+            <FontAwesome.Button name="camera" backgroundColor={"#0082c0"} onPress={takePictureAsync}>
+              Cámara
+            </FontAwesome.Button>
+            <View style={styles.spacer} />
+            <FontAwesome.Button name="image" backgroundColor={"#0082c0"} onPress={pickImageAsync}>
+              Galería
+            </FontAwesome.Button>
+          </View>
+        </ThemedView>
+
+        <View  style={{marginBottom: 20}} />
+
         {/* Campo Email */}
         <TextInput
           style={[styles.input, errors.email && styles.errorInput]}
@@ -145,30 +189,7 @@ export default function HomeScreen() {
         />
         {errors.password ? <ThemedText style={styles.errorText}>{errors.password}</ThemedText> : null}
 
-        <ThemedView>
-          <Image
-            style={{
-              alignSelf: 'center',
-              height: 200,
-              width: 200,
-              marginTop: 5,
-              marginBottom: 5,
-              objectFit: 'contain'
-            }}
-            source={{ uri: image }}
-          >
-          </Image>
-
-          <View style={styles.containerFluid}>
-            <FontAwesome.Button name="camera" backgroundColor={"#0082c0"} onPress={takePictureAsync}>
-              Cámara
-            </FontAwesome.Button>
-            <View style={styles.spacer} />
-            <FontAwesome.Button name="image" backgroundColor={"#0082c0"} onPress={pickImageAsync}>
-              Galería
-            </FontAwesome.Button>
-          </View>
-        </ThemedView>
+        
 
         <View  style={{marginBottom: 20}} />
 
@@ -196,6 +217,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    marginBottom: 10,
   },
   input: {
     width: '100%',
