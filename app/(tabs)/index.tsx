@@ -72,14 +72,11 @@ export default function HomeScreen() {
       console.log(password)
 
       setTimeout(() => {
-        navigation.navigate("explore", {refresh: Date.now()})        
+        navigation.navigate("profile", {refresh: Date.now()})        
       }, 1000);
-      //alert(`Inicio de sesión exitoso. Email: ${email}`);
-      // getValueFor("email")
-      // getValueFor("password")
-      // getValueFor("image")
     }
   };
+
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
@@ -88,9 +85,8 @@ export default function HomeScreen() {
 
     if (!result.canceled && result.assets?.[0]?.uri) {
       setImage({ uri: result.assets[0].uri });
-      //setImage(result.assets[0].uri);
     } else {
-      //alert('No ha seleccionado ninguna imagen');
+      alert('No ha seleccionado ninguna imagen');
     }
   };
 
@@ -102,9 +98,8 @@ export default function HomeScreen() {
 
     if (!result.canceled && result.assets?.[0]?.uri) {
       setImage({ uri: result.assets[0].uri });
-      //setImage(result.assets[0].uri);
     } else {
-      //alert('Captura de imagen cancelada');
+      alert('Captura de imagen cancelada');
     }
   };
 
