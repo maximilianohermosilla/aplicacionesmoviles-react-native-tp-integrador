@@ -11,17 +11,7 @@ import { useNavigation } from 'expo-router';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { ParamListBase, useRoute } from '@react-navigation/native';
 
-async function getValueFor(key: string) {
-  let result = await SecureStore.getItemAsync(key);
-  if (result) {
-    alert("🔐 Here's your value 🔐 \n" + result);
-  } else {
-    alert('No values stored under that key.');
-  }
-}
-
 export default function HomeScreen() {
-  const [key, onChangeKey] = useState('Your key here');
   const [image, setImage] = useState(require('@/assets/images/user-placeholder.png'));
   //const [image, setImage] = useState<string | undefined>('https://via.placeholder.com/300');
   const [email, setEmail] = useState('');
@@ -64,7 +54,6 @@ export default function HomeScreen() {
     setErrors(newErrors);
 
     if (isValid) {
-      // Lógica de inicio de sesión aquí
       SecureStore.setItem("email", email)
       SecureStore.setItem("password", password)
       SecureStore.setItem("image", JSON.stringify(image) || "")
@@ -115,7 +104,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Aplicaciones Moviles UNAJ</ThemedText>
+        <ThemedText type="title">Aplicaciones Moviles</ThemedText>
         <HelloWave />
       </ThemedView>
 
@@ -131,13 +120,13 @@ export default function HomeScreen() {
               height: 150,
               borderWidth: 1,
               borderColor: '#ccc',
-              borderRadius: 20, // Bordes redondeados sin ser un círculo
+              borderRadius: 20,
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'center',
               marginBottom: 20,
               backgroundColor: '#fff',
-              overflow: 'hidden', // Asegura que la imagen no sobresalga del contenedor
+              overflow: 'hidden',
             }}
           >
             <Image
@@ -146,7 +135,7 @@ export default function HomeScreen() {
                 height: '100%',
                 resizeMode: 'cover',
               }}
-              source={image} // Aquí usas la imagen que está en el estado
+              source={image}
             />
           </View>
 
@@ -184,8 +173,6 @@ export default function HomeScreen() {
         />
         {errors.password ? <ThemedText style={styles.errorText}>{errors.password}</ThemedText> : null}
 
-        
-
         <View  style={{marginBottom: 20}} />
 
         {/* Botón de Inicio de Sesión */}
@@ -211,11 +198,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: "center",
     marginBottom: 20,
   },
   subtitle: {
     fontSize: 18,
     color: '#FFFFFF',
+    textAlign: "center",
     marginBottom: 10,
   },
   input: {
